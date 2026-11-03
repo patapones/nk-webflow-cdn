@@ -16,7 +16,7 @@ Jamais `@main` ni `@latest` dans Webflow : une étiquette = une version figée.
 ## Contenu
 | Dossier | Page | Version en ligne |
 |---|---|---|
-| `art-du-regard/demo-realisations/` | lart-du-regard.webflow.io/demo-realisations | v0.6.0 (03/11/2026 : curseur rond fixe + traînée, mode différence) · v0.5.0 (rond encre étiré) · v0.4.0 (tourné de page pendant le vol, validé) · v0.3.0 enroulement · v0.2.0 courbure · v0.1.0 = état validé du 29/10 |
+| `art-du-regard/demo-realisations/` | lart-du-regard.webflow.io/demo-realisations | v0.6.1 (03/11/2026 : plus de défilement tout seul après le clic sur une vignette du bord) · v0.6.0 (curseur rond fixe + traînée, mode différence) · v0.5.0 (rond encre étiré) · v0.4.0 (tourné de page pendant le vol, validé) · v0.3.0 enroulement · v0.2.0 courbure · v0.1.0 = état validé du 29/10 |
 
 `realisations.min.js` = `realisations-donnees-survol.js` + `realisations-courbure.js` + `realisations-vol.js` + `realisations-proto.js` (dans cet ordre).
 `curseur.min.js` = `Kit-Webflow/code/curseur.js` minifié.
