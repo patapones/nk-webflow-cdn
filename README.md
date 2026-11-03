@@ -16,6 +16,6 @@ Jamais `@main` ni `@latest` dans Webflow : une étiquette = une version figée.
 ## Contenu
 | Dossier | Page | Version en ligne |
 |---|---|---|
-| `art-du-regard/demo-realisations/` | lart-du-regard.webflow.io/demo-realisations | v0.1.0 (03/11/2026, état validé du 29/10) |
+| `art-du-regard/demo-realisations/` | lart-du-regard.webflow.io/demo-realisations | v0.2.0 (03/11/2026 : distorsion pendant le vol) · v0.1.0 = état validé du 29/10 |
 
-`realisations.min.js` = `realisations-donnees-survol.js` + `realisations-courbure.js` + `realisations-proto.js` (dans cet ordre).
+`realisations.min.js` = `realisations-donnees-survol.js` + `realisations-courbure.js` + `realisations-vol.js` + `realisations-proto.js` (dans cet ordre).
