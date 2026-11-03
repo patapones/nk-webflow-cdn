@@ -1,7 +1,21 @@
 # nk-webflow-cdn
 
-Code hébergé pour les sites Webflow de NK Studio créa, servi par jsDelivr :
+Code hébergé pour les sites Webflow de NK Studio créa (Kevin), servi par jsDelivr :
 `https://cdn.jsdelivr.net/gh/patapones/nk-webflow-cdn@VERSION/chemin/fichier`
 
-Chaque version est figée par une étiquette (tag) git : changer de version = changer l'adresse dans Webflow.
-Les sources lisibles sont dans `~/Documents/Claude-projets/Kit-Webflow/code/` ; ici, uniquement les fichiers publiés.
+Ici, uniquement les **fichiers publiés** (minifiés). Les sources lisibles sont dans
+`~/Documents/Claude-projets/Kit-Webflow/code/` : on modifie toujours la source, puis on minifie.
+
+## Publier une nouvelle version (fait par Claude)
+1. Modifier la source lisible dans `Kit-Webflow/code/`, tester sans publier (Chrome automatique, page en ligne avec substitution).
+2. Minifier vers ce dossier : `npx -y terser@5 source.js -c -m -o chemin/fichier.min.js`.
+3. `git commit`, `git tag vX.Y.Z`, `git push origin main --tags`.
+4. Vérifier que jsDelivr sert bien le fichier (`curl` + comparaison), puis changer `@vX.Y.Z` dans le code de la page Webflow et publier.
+Jamais `@main` ni `@latest` dans Webflow : une étiquette = une version figée.
+
+## Contenu
+| Dossier | Page | Version en ligne |
+|---|---|---|
+| `art-du-regard/demo-realisations/` | lart-du-regard.webflow.io/demo-realisations | v0.1.0 (03/11/2026, état validé du 29/10) |
+
+`realisations.min.js` = `realisations-donnees-survol.js` + `realisations-courbure.js` + `realisations-proto.js` (dans cet ordre).
