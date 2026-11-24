@@ -30,8 +30,9 @@
   css.id = 'nk-intro-css';
   css.textContent = [
     '[data-intro],[data-intro-logo],[data-intro-slides]{display:none}',
-    // la place de la barre de défilement reste réservée (fond encre) : pas de saut de 15 px quand elle revient à la fin
-    'html.nk-intro{overflow:hidden;scrollbar-gutter:stable;background-color:#1c1c1c}',
+    // on ne touche jamais à la barre de défilement (overflow) : la retirer puis la rendre fait sauter la page et fausse
+    // la taille Fluent (vw) ; le défilement est bloqué par des écouteurs, la barre éventuelle est peinte couleur encre
+    'html.nk-intro{scrollbar-color:#1c1c1c #1c1c1c;background-color:#1c1c1c}',
     'html.nk-intro [data-intro]{display:block;position:fixed;inset:0;z-index:50;pointer-events:none}',
     'html.nk-intro [data-intro-logo]{display:block;position:fixed;z-index:53;left:0;top:0;pointer-events:none;transform-origin:0 0;visibility:hidden}',
     'html.nk-intro [data-intro-reveal]{opacity:0}',
@@ -51,6 +52,14 @@
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; // mouvement réduit : pas d'intro
 
   html.classList.add('nk-intro');
+  // pendant l'intro : défilement bloqué sans toucher à la barre de défilement
+  var KEYS = { ' ': 1, PageDown: 1, PageUp: 1, ArrowDown: 1, ArrowUp: 1, Home: 1, End: 1 };
+  function block(e) { if (html.classList.contains('nk-intro') && (e.type !== 'keydown' || KEYS[e.key])) e.preventDefault(); }
+  window.addEventListener('wheel', block, { passive: false });
+  window.addEventListener('touchmove', block, { passive: false });
+  window.addEventListener('keydown', block);
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
   setTimeout(function () { if (!window.__introDone) { html.classList.remove('nk-intro'); window.__introDone = true; } }, SAFETY);
   // stack-base.js n'appelle NKIntro que sur un site avec Barba : sans appel peu après le chargement, on découvre la page
   // sans Barba (pas de stack-base.js) : l'intro démarre seule quand Webflow est prêt
@@ -101,7 +110,7 @@
     function done() {
       if (finished) return;
       finished = true; window.__introDone = true;
-      html.classList.remove('nk-intro'); html.style.scrollbarGutter = '';
+      html.classList.remove('nk-intro');
       if (show) show.remove();
       if (hero) { hero.style.clipPath = ''; hero.style.visibility = ''; hero.style.zIndex = ''; if (heroPos) hero.style.position = ''; }
       gsap.set([overlay, big].concat(reveals, splitLines, letters, words).filter(Boolean), { clearProps: 'all' });
@@ -117,8 +126,6 @@
 
     var run = function () {
       /* ---------- repères ---------- */
-      // place de la barre de défilement : réservée seulement si la page défilera après l'intro (sinon saut inverse à la fin)
-      html.style.scrollbarGutter = html.scrollHeight > html.clientHeight + 1 ? 'stable' : 'auto';
       var W = innerWidth, H = innerHeight, u = Math.min(W, 1920) / 1440;
       if (getComputedStyle(hero).position === 'static') { hero.style.position = 'relative'; heroPos = true; }
       hero.style.zIndex = 51;                                  // pendant l'intro, le hero passe au-dessus du fond encre
