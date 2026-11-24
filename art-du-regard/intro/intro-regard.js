@@ -30,7 +30,8 @@
   css.id = 'nk-intro-css';
   css.textContent = [
     '[data-intro],[data-intro-logo],[data-intro-slides]{display:none}',
-    'html.nk-intro{overflow:hidden}',
+    // la place de la barre de défilement reste réservée (fond encre) : pas de saut de 15 px quand elle revient à la fin
+    'html.nk-intro{overflow:hidden;scrollbar-gutter:stable;background-color:#1c1c1c}',
     'html.nk-intro [data-intro]{display:block;position:fixed;inset:0;z-index:50;pointer-events:none}',
     'html.nk-intro [data-intro-logo]{display:block;position:fixed;z-index:53;left:0;top:0;pointer-events:none;transform-origin:0 0;visibility:hidden}',
     'html.nk-intro [data-intro-reveal]{opacity:0}',
