@@ -121,7 +121,10 @@
       hero.style.zIndex = 51;                                  // pendant l'intro, le hero passe au-dessus du fond encre
       var hr = hero.getBoundingClientRect();
       var cx = W / 2 - hr.left, cy = H / 2 - hr.top;           // centre de l'écran, dans le repère du hero
-      var fw = cssLen(hero, '--intro-frame-w', 420 * u), fh = cssLen(hero, '--intro-frame-h', 210 * u), R = 3 * u;
+      // taille du masque « écran de cinéma » : 420 × 210 à 1440 (bureau), 29 % de l'écran en tablette, 50 % en mobile
+      // (le logo et le cadre réunis doivent tenir dans l'écran) ; surchargeable par --intro-frame-w / --intro-frame-h
+      var FW = W < 768 ? W * .5 : (W < 992 ? W * .2914 : 420 * u);
+      var fw = cssLen(hero, '--intro-frame-w', FW), fh = cssLen(hero, '--intro-frame-h', FW / 2), R = 3 * u;
       var Z = num(himg, 'data-intro-zoom', 1.7);
 
       /* ---------- masque « écran de cinéma » piloté par ses 4 côtés (jamais par une animation CSS de clip-path) ---------- */
