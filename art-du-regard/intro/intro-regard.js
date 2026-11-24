@@ -260,8 +260,14 @@
       return tl;
     };
 
-    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    // logo : s'il est vide dans le Designer, ses lettres (SVG) sont chargées depuis data-intro-logo-src
+    var logoReady = Promise.resolve();
+    var logoSrc = big.getAttribute('data-intro-logo-src');
+    if (logoSrc && !big.querySelector('[data-intro-word]')) {
+      logoReady = fetch(logoSrc).then(function (r) { return r.text(); }).then(function (t) { big.innerHTML = t; });
+    }
+    Promise.all([document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(), logoReady]).then(function () {
       try { run(); } catch (e) { console.error('[intro]', e); done(); }
-    });
+    }, function (e) { console.error('[intro] logo', e); done(); });
   };
 })();
