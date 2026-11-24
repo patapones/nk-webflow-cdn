@@ -12,6 +12,7 @@
  * une fois par visite). Branché sur stack-base.js par window.NKIntro (appelé seulement sur un site AVEC Barba).
  * Version Webflow ADR (24/11/2026) : démarre seule si le site n'a pas Barba (pas de stack-base.js) ; [data-intro-under]
  * passe l'en-tête et la barre mobile sous le fond encre pendant l'intro.
+ * v0.7.9 (25/11/2026) : data-intro-span sur l'image du hero = même cadrage du dernier regard au bureau, en tablette et en mobile.
  * Dépendance : GSAP (Designer > Settings > GSAP). SplitText facultatif (paragraphe ligne par ligne). Pas de CustomEase :
  * les courbes sur mesure sont calculées ici.
  */
@@ -161,6 +162,15 @@
       /* ---------- hero : rapproché sur le regard, centré dans le masque ---------- */
       var eyes = pair(himg, 'data-intro-eyes', [.5918, .4601]); // point des yeux, en fractions de l'image affichée
       var ir = himg.getBoundingClientRect();
+      // v0.7.9 : data-intro-span = largeur de la photo du hero (zoomée) ÷ largeur du masque, la même à toutes les tailles
+      // d'écran (7,8 validé au bureau) ; le zoom en découle. Sans lui, zoom fixe data-intro-zoom (trop serré en mobile et
+      // tablette, où la photo du hero est affichée bien plus grande que l'écran)
+      var span = num(himg, 'data-intro-span', 0);
+      if (span) {
+        var cw = ir.width, inw = himg.naturalWidth, inh = himg.naturalHeight;
+        if (getComputedStyle(himg).objectFit === 'cover' && inw && inh) cw = inw * Math.max(ir.width / inw, ir.height / inh);
+        if (cw) Z = Math.max(span * fw / cw, fw / ir.width, fh / ir.height); // jamais de bord vide dans le masque
+      }
       var ox = eyes[0] * ir.width, oy = eyes[1] * ir.height;   // dans le repère de l'image
       var ex = ir.left - hr.left + ox, ey = ir.top - hr.top + oy; // dans le repère du hero
       gsap.set(himg, { transformOrigin: ox + 'px ' + oy + 'px', scale: Z, x: cx - ex, y: cy - ey });
