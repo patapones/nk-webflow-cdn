@@ -48,6 +48,7 @@
   if (ONLY_PATHS && ONLY_PATHS.indexOf(path) === -1) return;
   var seen = false;
   try { seen = ONCE_PER_SESSION && sessionStorage.getItem('nk-intro') === '1'; } catch (e) {}
+  if (/[?&]intro(=|&|$)/.test(location.search)) seen = false; // ?intro dans l'adresse : rejouer l'intro (tests)
   if (seen) return;
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; // mouvement réduit : pas d'intro
 
