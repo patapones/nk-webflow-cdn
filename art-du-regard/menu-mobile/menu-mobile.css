@@ -1,0 +1,107 @@
+/* Menu mobile et tablette · styles (L'Art du Regard, v12 du 25/11/2026). Tout le reste est dans le Style panel du Designer.
+   Ici seulement ce que le Designer ne sait pas faire : états posés par le script sur un PARENT ou un attribut, règles sur la balise html,
+   requête « téléphone en paysage », animations @keyframes, mouvement réduit. Jamais de balise écrite en clair dans ce texte (le canevas viderait l'embed).
+   Pour éditer le volet dans le Designer : ajouter temporairement la combo is-open sur .mnav et is-active sur l'écran voulu. */
+
+/* 1. Bouton du menu (choix de Kevin 25/11) : l'icône seule, centrée, sans texte ni pastille. État posé par le script sur le bouton (aria-expanded).
+   Ouverture : les 4 points se rejoignent au centre (0,45 s), puis une croix naît du centre de ce point (deux traits qui s'étirent, 0,5 s à 0,4 s)
+   pendant que le point s'efface. Fermeture : la croix se rétracte au centre, le point réapparaît et se divise en 4 (transitions de retour dans
+   le Style panel : .burger__dot, .burger__line). Points et traits en pixels entiers : icône 24 px, points 8 px, croix 30 px (agrandie deux fois le 25/11). */
+.burger[aria-expanded="true"] .burger__dot { opacity: 0; transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease 0.4s; }
+.burger[aria-expanded="true"] .burger__dot--1 { transform: translate(8px, 8px); }
+.burger[aria-expanded="true"] .burger__dot--2 { transform: translate(-8px, 8px); }
+.burger[aria-expanded="true"] .burger__dot--3 { transform: translate(8px, -8px); }
+.burger[aria-expanded="true"] .burger__dot--4 { transform: translate(-8px, -8px); }
+.burger[aria-expanded="true"] .burger__line { transform: none; transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.4s; }
+
+/* 1 bis. Volet et écrans : une seule écriture. Le fond s'ouvre de bas en haut (clip-path, Style panel : .mnav et .mnav.is-open) et passe
+   sous l'en-tête du site. Sur chaque écran (à l'ouverture comme quand on change d'écran), en cascade toutes les 0,06 s : les lignes de
+   séparation se dessinent de gauche à droite (::after de .mnav__link et .mnav__soin, Style panel), le texte suit sa ligne de 0,25 s,
+   les autres blocs (retour, photo, titre, accroche, consultation) apparaissent à leur rang ; après un lien découpé en lettres, l'élément
+   suivant attend 0,12 s (les liens arrivent l'un après l'autre). Rang (--mi) et type (data-mi) posés par
+   le script ; départ (--mi-base) : 0,4 s après l'ouverture du volet ou la sortie de l'écran précédent. À la sortie d'un
+   écran : textes effacés en 0,2 s, lignes qui se rétractent vers la droite. Bouton Planity et raccourcis : à la suite, à l'ouverture. */
+[data-mi="item"], [data-mi="line"] > *, .mnav__cta, .mnav__quick > * { opacity: 0; transform: translate3d(0, 0.75rem, 0); transition: opacity 0.2s ease, transform 0.2s ease; }
+.mnav.is-open .mnav__screen.is-active [data-mi="item"], .mnav.is-open .mnav__screen.is-active [data-mi="line"] > * { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mi-base, 0.4s) + var(--mi, 0s) + 0.25s); }
+[data-mi="line"]::after { transform: scaleX(0); transform-origin: 100% 50%; transition: transform 0.3s ease; }
+.mnav.is-open .mnav__screen.is-active [data-mi="line"]::after { transform: none; transform-origin: 0% 50%; transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1); transition-delay: calc(var(--mi-base, 0.4s) + var(--mi, 0s)); }
+/* Photos des familles : volet dans le sens de la navigation (demande de Kevin) : en arrivant sur l'écran, il s'ouvre de droite à gauche
+   et la photo glisse avec lui en reculant légèrement ; au retour vers l'écran précédent, il se referme dans l'autre sens (vers la droite),
+   en douceur (0,45 s ; l'écran quitté reste visible 0,45 s, Style panel .mnav__screen) */
+[data-mi="photo"] { clip-path: inset(0% 0% 0% 100%); transition: clip-path 0.45s cubic-bezier(0.45, 0, 0.55, 1); }
+[data-mi="photo"] img { transform: translate3d(8%, 0, 0) scale(1.12); transition: transform 0.45s cubic-bezier(0.45, 0, 0.55, 1); }
+.mnav.is-open .mnav__screen.is-active [data-mi="photo"] { clip-path: inset(0% 0% 0% 0%); transition: clip-path 0.8s cubic-bezier(0.5, 0, 0, 1); transition-delay: calc(var(--mi-base, 0.4s) + var(--mi, 0s)); }
+.mnav.is-open .mnav__screen.is-active [data-mi="photo"] img { transform: none; transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mi-base, 0.4s) + var(--mi, 0s)); }
+/* Boutons retour : lettres découpées par le script ; elles descendent dans le mot de gauche à droite (0,025 s d'écart), et remontent à la sortie */
+.mnav__chars { display: inline-block; overflow: hidden; vertical-align: top; }
+.mnav__char { display: inline-block; white-space: pre; transform: translate3d(0, -110%, 0); transition: transform 0.25s ease; transition-delay: calc(var(--ci, 0) * 0.015s); }
+.mnav.is-open .mnav__screen.is-active .mnav__char { transform: none; transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mi-base, 0.4s) + var(--mi, 0s) + var(--ci, 0) * 0.025s); }
+/* Liens vers les pages ou l'écran suivant : leur titre (et le numéro des familles) apparaît lettre par lettre juste après sa ligne,
+   sans masque (les accents de la Playfair ne sont jamais coupés) : chaque lettre descend légèrement en apparaissant ; elles s'effacent à la sortie */
+.mnav__wordchars { display: inline-block; white-space: nowrap; }
+[data-mi="line"] > [data-split-host] { opacity: 1; transform: none; }
+.mnav__chars--link { overflow: visible; }
+.mnav__chars--link .mnav__char { opacity: 0; transform: translate3d(0, -0.35em, 0); transition: opacity 0.2s ease, transform 0.2s ease; transition-delay: calc(var(--ci, 0) * 0.01s); }
+.mnav.is-open .mnav__screen.is-active .mnav__chars--link .mnav__char { opacity: 1; transform: none; transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mi-base, 0.4s) + var(--mi, 0s) + 0.25s + var(--ci, 0) * 0.025s); }
+.mnav.is-open .mnav__cta, .mnav.is-open .mnav__quick > * { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+/* à la suite de la cascade de l'écran Menu : --mi-end (fin de sa cascade) est posé par le script */
+.mnav.is-open .mnav__cta { transition-delay: calc(var(--mi-end, 0.72s) + 0.65s); }
+.mnav.is-open .mnav__quick > :nth-child(1) { transition-delay: calc(var(--mi-end, 0.72s) + 0.71s); }
+.mnav.is-open .mnav__quick > :nth-child(2) { transition-delay: calc(var(--mi-end, 0.72s) + 0.77s); }
+
+/* 2. Barre du bas : la page garde une marge pour ne pas passer dessous ; masquée quand on descend (classe posée sur la balise html par le script du Menu) */
+@media (max-width: 991px) { body:has([data-mnav-root]) { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); } }
+html.is-scrolling-down .mbar:not(:has(:focus-visible)) { transform: translateY(100%); }
+
+/* 3. Volet : remise en place instantanée à l'ouverture, page bloquée */
+.mnav.is-instant .mnav__screen { transition: none !important; }
+html.mnav-open, html.mnav-open body { overflow: hidden; }
+/* le volet passe sous l'en-tête du site (z-index 250 en tablette / mobile, Style panel) : l'en-tête reste visible même s'il était masqué au défilement */
+html.mnav-open .header { transform: none !important; }
+
+/* 4. Volet Itinéraire ouvert (classe is-open posée sur .msheet) : voile et panneau */
+.msheet.is-open .msheet__veil { opacity: 1; }
+.msheet.is-open .msheet__panel { transform: none; }
+
+/* 5. Écran « tournez votre téléphone » (Figma 1415:5884, piste C2, choix de Kevin 24/11) : smartphone tactile en paysage,
+   peu de hauteur → fond noir plein écran, site masqué (blocage total, écart WCAG 1.3.4 assumé par Kevin). */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .orient { display: flex; }
+  html, body { overflow: hidden; }
+}
+.orient__icon svg { display: block; width: 100%; height: 100%; }
+/* Animation du pictogramme (boucle 3,2 s) : flèche qui se dessine + pointillé (0,2 → 0,6 s), téléphone qui glisse en pivotant
+   de −90° à 0° (0,6 → 1,8 s, une seule courbe), pause, tout s'efface (2,8 → 3,2 s). */
+.orient .rotate-phone__phone { animation: orient-phone 3.2s infinite; }
+.orient .rotate-phone__arrow-line { stroke-dasharray: 1; animation: orient-arrow-line 3.2s infinite; }
+.orient .rotate-phone__arrow-head { animation: orient-arrow-head 3.2s infinite; }
+.orient .rotate-phone__ghost { animation: orient-ghost 3.2s infinite; }
+@keyframes orient-phone {
+  0% { transform: translate(26px, 44px) rotate(-90deg); opacity: 0; animation-timing-function: ease-out; }
+  6.25% { opacity: 1; }
+  18.75% { transform: translate(26px, 44px) rotate(-90deg); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  56.25% { transform: translate(100px, 40px) rotate(0deg); }
+  87.5% { transform: translate(100px, 40px) rotate(0deg); opacity: 1; animation-timing-function: ease-in; }
+  100% { transform: translate(100px, 40px) rotate(0deg); opacity: 0; }
+}
+@keyframes orient-arrow-line {
+  0%, 6.25% { stroke-dashoffset: 1; opacity: 1; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  18.75% { stroke-dashoffset: 0; }
+  87.5% { stroke-dashoffset: 0; opacity: 1; animation-timing-function: ease-in; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes orient-arrow-head {
+  0%, 16% { opacity: 0; }
+  20% { opacity: 1; }
+  87.5% { opacity: 1; animation-timing-function: ease-in; }
+  100% { opacity: 0; }
+}
+@keyframes orient-ghost {
+  0%, 6.25% { opacity: 0; }
+  18.75% { opacity: 0.4; }
+  87.5% { opacity: 0.4; animation-timing-function: ease-in; }
+  100% { opacity: 0; }
+}
+
+/* 6. Mouvement réduit */
+@media (prefers-reduced-motion: reduce) { .mbar, .burger, .burger__dot, .burger__line, [data-mi="item"], [data-mi="line"] > *, [data-mi="line"]::after, [data-mi="photo"], [data-mi="photo"] img, .mnav__char, .mnav__cta, .mnav__quick > *, .mnav, .mnav__screen, .msheet, .msheet__veil, .msheet__panel { transition-duration: 0.01s !important; transition-delay: 0s !important; } [data-mi="item"], [data-mi="line"] > *, [data-mi="line"]::after, [data-mi="photo"] img, .mnav__char, .mnav__cta, .mnav__quick > * { transform: none !important; } [data-mi="photo"] { clip-path: none !important; } .orient .rotate-phone__phone, .orient .rotate-phone__arrow-line, .orient .rotate-phone__arrow-head, .orient .rotate-phone__ghost { animation: none; } }
