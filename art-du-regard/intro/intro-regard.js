@@ -116,6 +116,7 @@
       gsap.set([overlay, big].concat(reveals, splitLines, letters, words).filter(Boolean), { clearProps: 'all' });
       if (himg) gsap.set(himg, { clearProps: 'transform,transformOrigin' });
       if (split) split.revert();
+      if (clipBox) clipBox.style.overflow = clipPrev;
       if (window.NK) NK.startScroll();
       try { if (ONCE_PER_SESSION) sessionStorage.setItem('nk-intro', '1'); } catch (e) {}
       go();
@@ -123,6 +124,10 @@
     var show = null, heroPos = false, reveals = [], splitLines = [], letters = [], words = [], split = null;
     if (!overlay || !big || !hero || !himg || !window.gsap) { html.classList.remove('nk-intro'); window.__introDone = true; return go(); }
     if (window.NK) NK.stopScroll();
+    // les apparitions partent 8 px plus bas : sur une page qui tient pile dans l'écran, ce débordement ferait apparaître
+    // une barre de défilement (page plus étroite) puis disparaître à la fin (saut) ; la section du hero le contient
+    var clipBox = hero.closest('section') || hero.parentNode, clipPrev = clipBox.style.overflow;
+    clipBox.style.overflow = 'clip';
 
     var run = function () {
       /* ---------- repères ---------- */
