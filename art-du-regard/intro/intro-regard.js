@@ -101,7 +101,7 @@
     function done() {
       if (finished) return;
       finished = true; window.__introDone = true;
-      html.classList.remove('nk-intro');
+      html.classList.remove('nk-intro'); html.style.scrollbarGutter = '';
       if (show) show.remove();
       if (hero) { hero.style.clipPath = ''; hero.style.visibility = ''; hero.style.zIndex = ''; if (heroPos) hero.style.position = ''; }
       gsap.set([overlay, big].concat(reveals, splitLines, letters, words).filter(Boolean), { clearProps: 'all' });
@@ -117,6 +117,8 @@
 
     var run = function () {
       /* ---------- repères ---------- */
+      // place de la barre de défilement : réservée seulement si la page défilera après l'intro (sinon saut inverse à la fin)
+      html.style.scrollbarGutter = html.scrollHeight > html.clientHeight + 1 ? 'stable' : 'auto';
       var W = innerWidth, H = innerHeight, u = Math.min(W, 1920) / 1440;
       if (getComputedStyle(hero).position === 'static') { hero.style.position = 'relative'; heroPos = true; }
       hero.style.zIndex = 51;                                  // pendant l'intro, le hero passe au-dessus du fond encre
