@@ -36,6 +36,8 @@
     'html.nk-intro [data-intro]{display:block;position:fixed;inset:0;z-index:50;pointer-events:none}',
     'html.nk-intro [data-intro-logo]{display:block;position:fixed;z-index:53;left:0;top:0;pointer-events:none;transform-origin:0 0;visibility:hidden}',
     'html.nk-intro [data-intro-reveal]{opacity:0}',
+    // pendant l'intro, la souris ne réveille rien (survol du menu, curseur main) : la page est inerte jusqu'à son dévoilement
+    'html.nk-intro body{pointer-events:none;cursor:default}',
     'html.nk-intro [data-intro-under]{z-index:40!important}',
     '[data-intro-logo] [data-intro-word]{position:absolute;inset:0}',
     '[data-intro-logo] svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}',
