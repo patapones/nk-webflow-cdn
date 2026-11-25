@@ -1,0 +1,72 @@
+/* Méga menu desktop « L'Art du Regard » · source lisible du CSS embarqué dans menu-desktop.js (v1.0.0, 25/11/2026) */
+/* Menu · styles (L'Art du Regard, v15 du 25/11/2026). Tout le reste est dans le Style panel du Designer.
+   Ici seulement ce que le Designer ne sait pas faire : états posés par le script sur un PARENT, survol d'un parent qui anime un enfant,
+   délais de cascade, sens du geste (variable), mouvement réduit. Jamais de balise écrite en clair dans ce texte (le canevas viderait l'embed). */
+
+/* 1. Méga menu : ouverture dans l'esprit du menu mobile (demande de Kevin 25/11). Classe is-open posée par le script sur .header.
+   Le fond se déroule de haut en bas sous l'en-tête (clip-path, 0,8 s, même courbe que le volet mobile), puis le contenu s'écrit (partie 4).
+   Fermeture : le contenu s'efface en 0,2 s, le fond se réenroule vers le haut (0,5 s après 0,1 s).
+   À reporter dans le Style panel à la validation (.megamenu : opacité 1, sans décalage, clip-path et transitions ci-dessous). */
+.megamenu { clip-path: inset(0 0 100% 0); transition: clip-path 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.1s, visibility 0s linear 0.6s; }
+.header.is-open .megamenu { visibility: visible; pointer-events: auto; clip-path: inset(0 0 0 0); transition: clip-path 0.8s cubic-bezier(0.5, 0, 0, 1), visibility 0s; }
+/* 1 ter. Voile derrière le méga menu (demande de Kevin 25/11) : élément .header__overlay réglé dans le Designer (fond color/black-30 réglé par Kevin,
+   flou d'arrière-plan réglé par Kevin, absent sur tablette et mobile).
+   Transition ici et pas dans le Style panel : écrite par le MCP, le Designer l'effaçait à chaque retouche de la classe (deux fois le 25/11).
+   Arrivée progressive : fermé, le flou est ramené à 0 ici ; à l'ouverture il monte jusqu'à la valeur du Designer en même temps que l'opacité. */
+.header__overlay { transition: opacity 0.8s cubic-bezier(0.45, 0, 0.55, 1), backdrop-filter 0.8s cubic-bezier(0.45, 0, 0.55, 1), -webkit-backdrop-filter 0.8s cubic-bezier(0.45, 0, 0.55, 1); }
+.header:not(.is-open) .header__overlay { backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
+.header.is-open .header__overlay { opacity: 1; }
+.header.is-open .nav__toggle, .header.is-open .nav__chevron { color: var(--color--title); }
+.nav__chevron[aria-expanded="true"] .nav__icon { transform: rotate(180deg); }
+
+/* 1 bis. Lien de la page courante : provisoire. L'état Current du Designer n'apparaît que sur un lien relié à une page ; à régler dans le Style panel (nav__link › Current › couleur title) quand les pages existeront, puis retirer cette ligne. */
+.nav__link.w--current { color: var(--color--title); }
+
+/* 2. Points sous les liens (élément .nav__dot réglé dans le Designer : 4 px, 8 px sous le lien, en pixels entiers depuis le 25/11 ; le script le recale sur un pixel entier) : page courante, rubrique Prestations, méga menu ouvert */
+.nav__link.w--current .nav__dot, .nav__toggle.is-section .nav__dot, .header.is-open .nav__toggle .nav__dot { transform: none; }
+
+/* 3. Liens à filet + flèche : au survol du lien, trait couleur du texte qui se dessine de gauche à droite ; la flèche glisse */
+.megamenu__soin::before, .megamenu__all::before, .megamenu__consult-link::before { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background-color: currentColor; transform: scaleX(0); transform-origin: left center; transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1); }
+:is(.megamenu__soin, .megamenu__all, .megamenu__consult-link):is(:hover, :focus-visible)::before { transform: scaleX(1); }
+:is(.megamenu__soin, .megamenu__all, .megamenu__consult-link):hover .link-arrow__icon { transform: translateX(0.25rem); }
+
+/* 3 bis. Familles (colonne de gauche) : numéro et nom découpés en lettres par le script ; à l'ouverture, les familles arrivent l'une
+   après l'autre (0,1 s d'écart, --mf posé par le script, départ 0,3 s), chaque lettre descend légèrement en apparaissant (comme les liens du menu mobile).
+   Sens de lecture (demande de Kevin 25/11) : à l'ouverture, tout s'écrit de gauche à droite : familles (0,3 s), panneau (0,6 s), photo (0,85 s), consultation à la suite. */
+.megamenu__chars { display: inline-block; }
+.megamenu__wordchars { display: inline-block; white-space: nowrap; }
+.megamenu__char { display: inline-block; white-space: pre; opacity: 0; transform: translate3d(0, -0.35em, 0); transition: opacity 0.2s ease, transform 0.2s ease; }
+.header.is-open .megamenu__char { opacity: 1; transform: none; transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(0.3s + var(--mf, 0) * 0.1s + var(--ci, 0) * 0.025s); }
+
+/* 4. Panneau de la famille : une seule écriture, à l'ouverture comme au changement de famille (réf. Osmo, data-dir="down|up" posé par
+   le script sur .megamenu__panels). Rang --mm-n posé par le script ; écart et départ : à l'ouverture (classe is-opening sur .megamenu)
+   0,06 s et 0,6 s (photo 0,85 s), au changement de famille 0,04 s et 0,12 s. Lignes des soins : elles se dessinent de gauche à droite (trait d'1 px
+   en fond, la bordure du Designer devient transparente), le texte suit sa ligne ; à la sortie, elles se rétractent vers la droite. */
+.megamenu { --mm-step: 0.04s; --mm-base: 0.12s; --mm-lag: 0.1s; --mm-photo: 0.05s; }
+.megamenu.is-opening { --mm-step: 0.06s; --mm-base: 0.6s; --mm-lag: 0.25s; --mm-photo: 0.85s; }
+.megamenu__panels { --mm-dir: 1; }
+.megamenu__panels[data-dir="up"] { --mm-dir: -1; }
+.megamenu__panel :is(.megamenu__family-title, .megamenu__family-desc, .megamenu__consult), .megamenu__panel :is(.megamenu__soin, .megamenu__all) > * { opacity: 0; transform: translate3d(0, calc(var(--mm-dir) * 1.5rem), 0); transition: opacity 0.2s ease, transform 0.2s ease; }
+.megamenu__soin, .megamenu__all { border-bottom-color: transparent; background-image: linear-gradient(var(--color--border), var(--color--border)); background-repeat: no-repeat; background-origin: border-box; background-position: 100% 100%; background-size: 0% 1px; transition: background-size 0.3s ease; }
+.megamenu__panel .megamenu__photo-wrap { clip-path: inset(100% 0 0 0 round 0.375rem); transition: clip-path 0.3s ease; }
+.megamenu__panels[data-dir="up"] .megamenu__panel .megamenu__photo-wrap { clip-path: inset(0 0 100% 0 round 0.375rem); }
+.megamenu__panel .megamenu__photo { transform: scale(1.12); transition: transform 0.3s ease; }
+/* entrée en cascade */
+.header.is-open .megamenu__panel.is-active :is(.megamenu__family-title, .megamenu__family-desc, .megamenu__consult), .header.is-open .megamenu__panel.is-active :is(.megamenu__soin, .megamenu__all) > * { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mm-base) + var(--mm-n, 0) * var(--mm-step)); }
+.header.is-open .megamenu__panel.is-active :is(.megamenu__soin, .megamenu__all) > * { transition-delay: calc(var(--mm-base) + var(--mm-n, 0) * var(--mm-step) + var(--mm-lag)); }
+.header.is-open .megamenu__panel.is-active :is(.megamenu__soin, .megamenu__all) { background-position: 0% 100%; background-size: 100% 1px; transition: background-size 0.7s cubic-bezier(0.65, 0, 0.35, 1); transition-delay: calc(var(--mm-base) + var(--mm-n, 0) * var(--mm-step)); }
+.header.is-open .megamenu__panels .megamenu__panel.is-active .megamenu__photo-wrap { clip-path: inset(0 0 0 0 round 0.375rem); transition: clip-path 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--mm-photo); }
+.header.is-open .megamenu__panel.is-active .megamenu__photo { transform: scale(1); transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--mm-photo); }
+/* sortie dans le sens du geste ; la photo sortante est figée par le script puis recouverte */
+.megamenu__panel.is-leaving :is(.megamenu__family-title, .megamenu__family-desc, .megamenu__consult), .megamenu__panel.is-leaving :is(.megamenu__soin, .megamenu__all) > * { opacity: 0; transform: translate3d(0, calc(var(--mm-dir) * -1.5rem), 0); transition: opacity 0.3s cubic-bezier(0.4, 0, 1, 1), transform 0.35s cubic-bezier(0.4, 0, 1, 1); transition-delay: calc(var(--mm-n, 0) * 0.01s); }
+.megamenu__panel.is-snap, .megamenu__panel.is-snap * { transition: none !important; }
+
+/* 5. Masquage au défilement : classe is-scrolling-down posée par le script sur la balise html ; jamais si le méga menu est ouvert ou si l'en-tête a le focus clavier */
+html.is-scrolling-down .header:not(.is-open):not(:has(:focus-visible)) { transform: translateY(-100%); }
+
+/* 6. Mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  .header, .header__overlay, .nav__dot, .nav__icon, .megamenu, .megamenu__char, .megamenu__panel, .megamenu__panel *, .megamenu__soin::before, .megamenu__all::before, .megamenu__consult-link::before { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+  .megamenu { clip-path: none !important; }
+  .megamenu__panel *, .megamenu__char, .megamenu .link-arrow__icon { transform: none !important; clip-path: none !important; }
+}
