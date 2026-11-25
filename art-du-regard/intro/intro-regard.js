@@ -13,6 +13,7 @@
  * Version Webflow ADR (24/11/2026) : démarre seule si le site n'a pas Barba (pas de stack-base.js) ; [data-intro-under]
  * passe l'en-tête et la barre mobile sous le fond encre pendant l'intro.
  * v0.7.9 (25/11/2026) : data-intro-span sur l'image du hero = même cadrage du dernier regard au bureau, en tablette et en mobile.
+ * v0.8.0 (25/11/2026) : photo du hero décodée dès le début de l'intro (plus de flash au relais, vu par moments sur mobile).
  * Dépendance : GSAP (Designer > Settings > GSAP). SplitText facultatif (paragraphe ligne par ligne). Pas de CustomEase :
  * les courbes sur mesure sont calculées ici.
  */
@@ -128,6 +129,11 @@
     var show = null, heroPos = false, reveals = [], splitLines = [], letters = [], words = [], split = null;
     if (!overlay || !big || !hero || !himg || !window.gsap) { html.classList.remove('nk-intro'); window.__introDone = true; return go(); }
     if (window.NK) NK.stopScroll();
+    // v0.8.0 : photo du hero chargée et décodée dès le début de l'intro ; au relais (fin du diaporama) elle est prête à
+    // s'afficher. Sinon, sur mobile, elle pouvait manquer une image au moment du relais : petit flash, pas à chaque fois.
+    var heroReady = false, heroDecode = function () { return himg.decode ? himg.decode() : Promise.resolve(); };
+    if (himg.loading === 'lazy') himg.loading = 'eager';
+    heroDecode().then(function () { heroReady = true; }, function () { heroReady = true; });
     // les apparitions partent 8 px plus bas : sur une page qui tient pile dans l'écran, ce débordement ferait apparaître
     // une barre de défilement (page plus étroite) puis disparaître à la fin (saut) ; la section du hero le contient
     var clipBox = hero.closest('section') || hero.parentNode, clipPrev = clipBox.style.overflow;
@@ -264,7 +270,9 @@
         if (!i) return;
         tl.to(P[i], { o: 1, s: 1, duration: REV, ease: 'power4.out', onUpdate: function () { paint(i); } }, 'part+=' + (START + GAP * (i - 1)));
       });
-      tl.add(function () { show.style.display = 'none'; }, 'part+=' + (lastAt + SWAP)); // le hero prend le relais, identique au pixel
+      // le hero prend le relais, identique au pixel ; s'il n'est pas encore décodé (rare), le dernier regard reste affiché le temps qu'il le soit
+      var hideShow = function () { show.style.display = 'none'; };
+      tl.add(function () { if (heroReady) hideShow(); else heroDecode().then(hideShow, hideShow); }, 'part+=' + (lastAt + SWAP));
       // 4. sur le regard du hero, le logo se dissout des lettres extérieures vers celles qui touchent le cadre
       var GO = lastAt + SWAP - .5 - .6 * .55, WAVE = .5, FADE = .6;
       letters.forEach(function (el) {
