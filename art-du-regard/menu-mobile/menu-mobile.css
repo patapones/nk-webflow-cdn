@@ -1,4 +1,4 @@
-/* Menu mobile et tablette · styles (L'Art du Regard, v13 du 25/11/2026). Tout le reste est dans le Style panel du Designer.
+/* Menu mobile et tablette · styles (L'Art du Regard, v14 du 25/11/2026). Tout le reste est dans le Style panel du Designer.
    Ici seulement ce que le Designer ne sait pas faire : états posés par le script sur un PARENT ou un attribut, règles sur la balise html,
    requête « téléphone en paysage », animations @keyframes, mouvement réduit. Jamais de balise écrite en clair dans ce texte (le canevas viderait l'embed).
    Pour éditer le volet dans le Designer : ajouter temporairement la combo is-open sur .mnav et is-active sur l'écran voulu. */
@@ -7,12 +7,12 @@
    Ouverture : les 4 points se rejoignent au centre (0,45 s), puis une croix naît du centre de ce point (deux traits qui s'étirent, 0,5 s à 0,4 s)
    pendant que le point s'efface. Fermeture : la croix se rétracte au centre, le point réapparaît et se divise en 4 (transitions de retour dans
    le Style panel : .burger__dot, .burger__line). Points et traits en pixels entiers : icône 24 px, points 8 px, croix 30 px (agrandie deux fois le 25/11). */
-/* Point gardé au centre de la croix (essai de Kevin 25/11) : les quatre points réunis (8 px) restent visibles, la croix (traits de 2 px aux bouts arrondis) se dessine dessus. */
+/* Point gardé au centre de la croix (essai de Kevin 25/11) : les quatre points réunis restent visibles, ramenés à 6 px (scale 0,75, pixels entiers : 9 à 15 px dans l'icône de 24) pendant le même rapprochement, la croix (traits de 2 px aux bouts arrondis) se dessine dessus. */
 .burger[aria-expanded="true"] .burger__dot { transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-.burger[aria-expanded="true"] .burger__dot--1 { transform: translate(8px, 8px); }
-.burger[aria-expanded="true"] .burger__dot--2 { transform: translate(-8px, 8px); }
-.burger[aria-expanded="true"] .burger__dot--3 { transform: translate(8px, -8px); }
-.burger[aria-expanded="true"] .burger__dot--4 { transform: translate(-8px, -8px); }
+.burger[aria-expanded="true"] .burger__dot--1 { transform: translate(8px, 8px) scale(0.75); }
+.burger[aria-expanded="true"] .burger__dot--2 { transform: translate(-8px, 8px) scale(0.75); }
+.burger[aria-expanded="true"] .burger__dot--3 { transform: translate(8px, -8px) scale(0.75); }
+.burger[aria-expanded="true"] .burger__dot--4 { transform: translate(-8px, -8px) scale(0.75); }
 .burger[aria-expanded="true"] .burger__line { transform: none; transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.4s; }
 
 /* 1 bis. Volet et écrans : une seule écriture. Le fond s'ouvre de bas en haut (clip-path, Style panel : .mnav et .mnav.is-open) et passe
