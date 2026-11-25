@@ -14,6 +14,8 @@
  * passe l'en-tête et la barre mobile sous le fond encre pendant l'intro.
  * v0.7.9 (25/11/2026) : data-intro-span sur l'image du hero = même cadrage du dernier regard au bureau, en tablette et en mobile.
  * v0.8.0 (25/11/2026) : photo du hero décodée dès le début de l'intro (plus de flash au relais, vu par moments sur mobile).
+ * v0.8.1 (25/11/2026) : photo du hero sur sa propre couche pendant l'intro (flash blanc d'une image sur mobile) ; mots
+ *   composés insécables avant le découpage en lignes du paragraphe (il se recoupait à la fin de l'intro).
  * Dépendance : GSAP (Designer > Settings > GSAP). SplitText facultatif (paragraphe ligne par ligne). Pas de CustomEase :
  * les courbes sur mesure sont calculées ici.
  */
@@ -112,6 +114,19 @@
     var hero = document.querySelector('[data-intro-hero]'), himg = hero && hero.querySelector('[data-intro-hero-img]');
     var started = false, finished = false;
     function go() { if (!started) { started = true; start(); } }
+    function keepCompounds(el) {
+      var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [];
+      while (w.nextNode()) if (/\S-\S/.test(w.currentNode.nodeValue)) nodes.push(w.currentNode);
+      nodes.forEach(function (n) {
+        var f = document.createDocumentFragment();
+        n.nodeValue.split(/(\S+-\S+)/).forEach(function (part, i) {
+          if (!part) return;
+          if (i % 2) { var sp = document.createElement('span'); sp.style.whiteSpace = 'nowrap'; sp.textContent = part; f.appendChild(sp); }
+          else f.appendChild(document.createTextNode(part));
+        });
+        n.parentNode.replaceChild(f, n);
+      });
+    }
     function done() {
       if (finished) return;
       finished = true; window.__introDone = true;
@@ -120,6 +135,7 @@
       if (hero) { hero.style.clipPath = ''; hero.style.visibility = ''; hero.style.zIndex = ''; if (heroPos) hero.style.position = ''; }
       gsap.set([overlay, big].concat(reveals, splitLines, letters, words).filter(Boolean), { clearProps: 'all' });
       if (himg) gsap.set(himg, { clearProps: 'transform,transformOrigin' });
+      if (himg) setTimeout(function () { himg.style.willChange = ''; }, 600); // couche rendue une fois la page au repos
       if (split) split.revert();
       if (clipBox) clipBox.style.overflow = clipPrev;
       if (window.NK) NK.startScroll();
@@ -179,7 +195,11 @@
       }
       var ox = eyes[0] * ir.width, oy = eyes[1] * ir.height;   // dans le repère de l'image
       var ex = ir.left - hr.left + ox, ey = ir.top - hr.top + oy; // dans le repère du hero
-      gsap.set(himg, { transformOrigin: ox + 'px ' + oy + 'px', scale: Z, x: cx - ex, y: cy - ey });
+      // v0.8.1 : la photo du hero a sa propre couche (carte graphique) pendant toute l'intro : son zoom arrière et la découpe
+      // qui s'agrandit ne la redessinent plus à chaque image. Sinon, sur mobile, une image pouvait sortir vide (flash blanc,
+      // vu sur Galaxy S24 / Chrome à 1,2 s de l'ouverture, quand le menu commence à apparaître). Rendue à la page à la fin.
+      himg.style.willChange = 'transform';
+      gsap.set(himg, { transformOrigin: ox + 'px ' + oy + 'px', scale: Z, x: cx - ex, y: cy - ey, force3D: true });
       clip();
 
       /* ---------- diaporama : regards lus dans [data-intro-slides], puis le regard du hero (relais au pixel) ---------- */
@@ -247,6 +267,9 @@
         if (kind === 'line') gsap.set(el, { opacity: 1, scaleX: 0, transformOrigin: 'left center' });
         else if (kind === 'badge') gsap.set(el, { opacity: 0, rotate: -50, filter: 'blur(6px)' });
         else if (kind === 'lines' && window.SplitText) {
+          // v0.8.1 : mots composés (savoir-faire…) insécables avant le découpage : le découpage en lignes ne coupe jamais au
+          // trait d'union, le navigateur si ; sans cela le paragraphe se recoupait à la fin de l'intro (texte qui saute).
+          keepCompounds(el);
           split = SplitText.create(el, { type: 'lines' }); splitLines = split.lines;
           gsap.set(el, { opacity: 1 }); gsap.set(splitLines, settle);
         } else gsap.set(el, settle);
@@ -282,7 +305,7 @@
       tl.addLabel('open', 'part+=' + (GO + WAVE + FADE * .55))
         .add(go, 'open')
         .to(M, { k: 1, duration: 1.8, ease: DOUX, onUpdate: clip }, 'open')
-        .to(himg, { scale: 1, x: 0, y: 0, duration: 1.95, ease: DOUX }, 'open')
+        .to(himg, { scale: 1, x: 0, y: 0, duration: 1.95, ease: DOUX, force3D: true }, 'open')
         .to(overlay, { autoAlpha: 0, duration: 1.2, ease: 'sine.inOut' }, 'open+=.4')
         .add(function () { gsap.set(big, { autoAlpha: 0 }); hero.style.clipPath = ''; hero.style.visibility = ''; hero.style.zIndex = ''; html.classList.remove('nk-intro'); if (window.NK) NK.startScroll(); }, 'open+=2');
       // 6. menu et textes du hero : chaque élément à son heure (data-intro-at), groupes décalés (data-intro-stagger)
