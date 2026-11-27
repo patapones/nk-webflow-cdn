@@ -1,7 +1,7 @@
 /*!
  * Méga menu desktop « L'Art du Regard » (v1.0.0 du 25/11/2026, validé par Kevin ; v1.1.0 du 27/11/2026 : flèche des soins qui glisse ;
  *   v1.2.0 du 27/11/2026 : liens de droite écrits lettre par lettre à leur apparition, survol lettre par lettre retiré ;
- *   v1.2.1 : vrai pas entre les rangées de soins, 0,12 s, 0,15 s à l'ouverture) · module NK Studio créa
+ *   v1.2.1 : vrai pas entre les rangées de soins, 0,12 s, 0,15 s à l'ouverture ; v1.3.0 du 27/11/2026 : en-tête toujours visible, masquage au défilement coupé) · module NK Studio créa
  * Remplace les deux embeds (styles v15, script v9) du composant « Menu » de Webflow : Webflow reste propre.
  * Source lisible du CSS : menu-desktop.css (même dossier) ; détail du montage : ArtDuRegard/13-webflow/menu-montage.md.
  *
@@ -254,7 +254,9 @@
     else if (dy < 0) rootEl.classList.remove('is-scrolling-down');
     lastY = y;
   }
-  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  /* v1.3.0 (27/11/2026, Kevin) : en-tête toujours visible, « pour le moment » → masquage coupé. Passer HIDE_ON_SCROLL à true pour le rétablir. */
+  var HIDE_ON_SCROLL = false;
+  if (HIDE_ON_SCROLL) window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
 }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

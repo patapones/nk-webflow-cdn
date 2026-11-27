@@ -1,5 +1,5 @@
 /*!
- * Menu mobile et tablette « L'Art du Regard » (v1.0.2 du 25/11/2026 : point de 6 px gardé au centre de la croix, à l'essai ; v1.1.0 du 27/11/2026 : barre du bas visible pendant le défilement, cachée à l'arrêt) · module NK Studio créa
+ * Menu mobile et tablette « L'Art du Regard » (v1.0.2 du 25/11/2026 : point de 6 px gardé au centre de la croix, à l'essai ; v1.1.0 du 27/11/2026 : barre du bas visible pendant le défilement, cachée à l'arrêt ; v1.2.0 du 27/11/2026 : tab bar toujours visible, masquage coupé) · module NK Studio créa
  * Remplace les deux embeds (styles v12, script v6) du composant « Menu mobile » de Webflow : Webflow reste propre.
  * Source lisible du CSS : menu-mobile.css (même dossier) ; détail du montage : ArtDuRegard/13-webflow/menu-montage.md.
  *
@@ -175,9 +175,13 @@
     var rootEl = document.documentElement, IDLE = 1200, idleT = 0;
     function hideBar() { if (opened || window.scrollY <= 8) { rootEl.classList.remove('is-bar-idle'); return; } rootEl.classList.add('is-bar-idle'); }
     function wakeBar() { rootEl.classList.remove('is-bar-idle'); clearTimeout(idleT); idleT = setTimeout(hideBar, IDLE); }
-    window.addEventListener('scroll', wakeBar, { passive: true });
-    window.addEventListener('touchstart', wakeBar, { passive: true });
-    idleT = setTimeout(hideBar, IDLE);
+    /* v1.2.0 (27/11/2026, Kevin) : tab bar toujours visible, « pour le moment » → masquage coupé. Passer HIDE_BAR à true pour le rétablir. */
+    var HIDE_BAR = false;
+    if (HIDE_BAR) {
+      window.addEventListener('scroll', wakeBar, { passive: true });
+      window.addEventListener('touchstart', wakeBar, { passive: true });
+      idleT = setTimeout(hideBar, IDLE);
+    }
 
     /* Passage en desktop : le volet se ferme */
     var desktop = window.matchMedia('(min-width: 992px)');
