@@ -71,15 +71,15 @@ html.is-scrolling-down .header:not(.is-open):not(:has(:focus-visible)) { transfo
   .megamenu__panel *, .megamenu__char, .megamenu .link-arrow__icon { transform: none !important; clip-path: none !important; }
 }
 
-/* 7. v1.1.0 (27/11/2026) · survol des liens à flèche : texte qui se renouvelle lettre par lettre (script : .mm-roll > .mm-roll__w > .mm-roll__c, --ci),
-   copie de chaque lettre en text-shadow 1,5em plus bas, le mot sert de masque. Flèche des soins / « Toutes les prestations » : c'est le svg qui
-   glisse (la règle de cascade fige l'icône elle-même, enfant direct du lien). */
-.mm-roll { display: inline; }
-.mm-roll__w { display: inline-block; white-space: nowrap; overflow: hidden; vertical-align: top; }
-.mm-roll__c { display: inline-block; white-space: pre; text-shadow: 0 1.5em currentColor; transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--ci, 0) * 0.015s); }
+/* 7. v1.2.0 (27/11/2026) · apparition des liens de droite lettre par lettre (script : .mm-letters-host > .mm-letters > .mm-letters__w > .mm-letters__c, --ci) :
+   le nom ne glisse plus en bloc, ses lettres apparaissent après la ligne (rang --mm-n, même ordre que les lignes) ; sortie inchangée.
+   Flèche des soins / « Toutes les prestations » au survol : c'est le svg qui glisse (la règle de cascade fige l'icône, enfant direct du lien).
+   (v1.1.0 : survol lettre par lettre, retiré à la demande de Kevin.) */
+.mm-letters { display: inline; }
+.mm-letters__w { display: inline-block; white-space: nowrap; }
+.megamenu__panel:not(.is-leaving) :is(.megamenu__soin, .megamenu__all) > .mm-letters-host { opacity: 1; transform: none; transition: none; }
+.mm-letters__c { display: inline-block; white-space: pre; opacity: 0; transform: translate3d(0, -0.35em, 0); transition: opacity 0.2s ease, transform 0.2s ease; }
+.header.is-open .megamenu__panel.is-active .mm-letters__c { opacity: 1; transform: none; transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mm-base) + var(--mm-n, 0) * var(--mm-step) + var(--mm-lag) + var(--ci, 0) * 0.015s); }
 :is(.megamenu__soin, .megamenu__all) .link-arrow__icon svg { transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1); }
-@media (hover: hover) and (pointer: fine) {
-  :is(.megamenu__soin, .megamenu__all, .megamenu__consult-link):is(:hover, :focus-visible) .mm-roll__c { transform: translate3d(0, -1.5em, 0); }
-  :is(.megamenu__soin, .megamenu__all):is(:hover, :focus-visible) .link-arrow__icon svg { transform: translateX(0.25rem); }
-}
-@media (prefers-reduced-motion: reduce) { .mm-roll__c { transform: none !important; text-shadow: none; } .megamenu .link-arrow__icon svg { transform: none !important; } }
+@media (hover: hover) and (pointer: fine) { :is(.megamenu__soin, .megamenu__all):is(:hover, :focus-visible) .link-arrow__icon svg { transform: translateX(0.25rem); } }
+@media (prefers-reduced-motion: reduce) { .mm-letters__c { opacity: 1 !important; transform: none !important; transition: none !important; } .megamenu .link-arrow__icon svg { transform: none !important; } }
