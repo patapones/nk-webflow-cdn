@@ -16,6 +16,8 @@
  * v0.8.0 (25/11/2026) : photo du hero décodée dès le début de l'intro (plus de flash au relais, vu par moments sur mobile).
  * v0.8.1 (25/11/2026) : photo du hero sur sa propre couche pendant l'intro (flash blanc d'une image sur mobile) ; mots
  *   composés insécables avant le découpage en lignes du paragraphe (il se recoupait à la fin de l'intro).
+ * v0.8.2 (27/11/2026) : attribut sizes de la photo du hero posé par le script (Webflow écrivait 479px → variante 500 px,
+ *   photo floue) ; le relais attend la grande variante.
  * Dépendance : GSAP (Designer > Settings > GSAP). SplitText facultatif (paragraphe ligne par ligne). Pas de CustomEase :
  * les courbes sur mesure sont calculées ici.
  */
@@ -28,6 +30,22 @@
   var SAFETY = 15000;              // filet de sécurité (ms) : la page se découvre quoi qu'il arrive
 
   var html = document.documentElement;
+
+  /* v0.8.2 : taille d'affichage de la photo du hero, donnée au navigateur. Webflow ne sait pas convertir une largeur en
+     rem en attribut sizes : il écrit « (max-width: 479px) 100vw, 479px », le navigateur prend la variante 500 px et la
+     photo est floue (étirée sur ~1 930 px, puis zoomée ×1,7 par l'intro). L'attribut est réservé dans le Designer : on le
+     pose ici, dès que l'image entre dans la page, intro jouée ou non. Largeurs réelles de hero__image (Figma) : mobile
+     ~410vw, tablette ~265vw, bureau ~134vw (150vw pour garder le zoom de l'intro net). */
+  var HERO_SEL = '[data-hero-img]', HERO_SIZES = '(max-width: 767px) 410vw, (max-width: 991px) 265vw, 150vw';
+  function fixHeroSizes(img) { if (img && img.getAttribute('sizes') !== HERO_SIZES) img.setAttribute('sizes', HERO_SIZES); }
+  (function () {
+    var img = document.querySelector(HERO_SEL); if (img) return fixHeroSizes(img);
+    var mo = window.MutationObserver && new MutationObserver(function () {
+      var el = document.querySelector(HERO_SEL); if (el) { fixHeroSizes(el); mo.disconnect(); }
+    });
+    if (mo) mo.observe(html, { childList: true, subtree: true });
+    document.addEventListener('DOMContentLoaded', function () { if (mo) mo.disconnect(); fixHeroSizes(document.querySelector(HERO_SEL)); });
+  })();
 
   /* CSS posé tout de suite (Head) : pendant l'intro, la page est cachée sous le fond encre ; sans intro, rien ne change */
   var css = document.createElement('style');
@@ -147,7 +165,19 @@
     if (window.NK) NK.stopScroll();
     // v0.8.0 : photo du hero chargée et décodée dès le début de l'intro ; au relais (fin du diaporama) elle est prête à
     // s'afficher. Sinon, sur mobile, elle pouvait manquer une image au moment du relais : petit flash, pas à chaque fois.
-    var heroReady = false, heroDecode = function () { return himg.decode ? himg.decode() : Promise.resolve(); };
+    // v0.8.2 : sizes corrigé → le navigateur remplace la variante 500 px par la grande ; decode() peut alors échouer
+    // (requête remplacée en cours de route) : on attend la fin du chargement de la nouvelle image, puis on décode.
+    fixHeroSizes(himg);
+    var heroReady = false, heroDecode = function () {
+      return new Promise(function (res) {
+        (function dec() {
+          (himg.decode ? himg.decode() : Promise.resolve()).then(res, function () {
+            if (himg.complete) return res();
+            himg.addEventListener('load', dec, { once: true }); himg.addEventListener('error', res, { once: true });
+          });
+        })();
+      });
+    };
     if (himg.loading === 'lazy') himg.loading = 'eager';
     heroDecode().then(function () { heroReady = true; }, function () { heroReady = true; });
     // les apparitions partent 8 px plus bas : sur une page qui tient pile dans l'écran, ce débordement ferait apparaître
@@ -238,6 +268,8 @@
         bw = nw * kc; bh = nh * kc; bx = rr.left + (rr.width - bw) * (isNaN(op[0]) ? .5 : op[0] / 100); by = rr.top + (rr.height - bh) * (isNaN(op[1]) ? .5 : op[1] / 100);
       }
       last.style.backgroundImage = 'url("' + (himg.currentSrc || himg.src) + '")';
+      // v0.8.2 : si la grande variante n'était pas encore là, le dernier regard la reprend dès qu'elle est décodée
+      heroDecode().then(function () { last.style.backgroundImage = 'url("' + (himg.currentSrc || himg.src) + '")'; });
       last._b = { w: bw, h: bh, x: bx - (W / 2 - fw / 2), y: by - (H / 2 - fh / 2) };
       show.appendChild(last); slides.push(last);
       P = slides.map(function () { return { o: 0, s: 1.5 }; });
