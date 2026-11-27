@@ -52,7 +52,7 @@
 
 /* 2. Barre du bas : la page garde une marge pour ne pas passer dessous ; masquée quand on descend (classe posée sur la balise html par le script du Menu) */
 @media (max-width: 991px) { body:has([data-mnav-root]) { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); } }
-html.is-scrolling-down .mbar:not(:has(:focus-visible)) { transform: translateY(100%); }
+html.is-bar-idle:not(.mnav-open) .mbar:not(:has(:focus-visible)) { transform: translateY(100%); }
 
 /* 3. Volet : remise en place instantanée à l'ouverture, page bloquée */
 .mnav.is-instant .mnav__screen { transition: none !important; }
