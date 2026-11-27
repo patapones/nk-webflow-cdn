@@ -80,6 +80,12 @@ html.is-scrolling-down .header:not(.is-open):not(:has(:focus-visible)) { transfo
 .megamenu__panel:not(.is-leaving) :is(.megamenu__soin, .megamenu__all) > .mm-letters-host { opacity: 1; transform: none; transition: none; }
 .mm-letters__c { display: inline-block; white-space: pre; opacity: 0; transform: translate3d(0, -0.35em, 0); transition: opacity 0.2s ease, transform 0.2s ease; }
 .header.is-open .megamenu__panel.is-active .mm-letters__c { opacity: 1; transform: none; transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--mm-base) + var(--mm-n, 0) * var(--mm-step) + var(--mm-lag) + var(--ci, 0) * 0.015s); }
+/* v1.2.1 : pas entre les rangées (lignes, flèches et lettres des soins) : 0,12 s, 0,15 s à l'ouverture ; le 1er soin part un pas après le titre */
+.megamenu { --mm-row: 0.12s; }
+.megamenu.is-opening { --mm-row: 0.15s; }
+.header.is-open .megamenu__panel.is-active :is(.megamenu__soin, .megamenu__all) { transition-delay: calc(var(--mm-base) + (var(--mm-n, 0) - 1) * var(--mm-row)); }
+.header.is-open .megamenu__panel.is-active :is(.megamenu__soin, .megamenu__all) > * { transition-delay: calc(var(--mm-base) + (var(--mm-n, 0) - 1) * var(--mm-row) + var(--mm-lag)); }
+.header.is-open .megamenu__panel.is-active .mm-letters__c { transition-delay: calc(var(--mm-base) + (var(--mm-n, 0) - 1) * var(--mm-row) + var(--mm-lag) + var(--ci, 0) * 0.015s); }
 :is(.megamenu__soin, .megamenu__all) .link-arrow__icon svg { transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1); }
 @media (hover: hover) and (pointer: fine) { :is(.megamenu__soin, .megamenu__all):is(:hover, :focus-visible) .link-arrow__icon svg { transform: translateX(0.25rem); } }
 @media (prefers-reduced-motion: reduce) { .mm-letters__c { opacity: 1 !important; transform: none !important; transition: none !important; } .megamenu .link-arrow__icon svg { transform: none !important; } }
