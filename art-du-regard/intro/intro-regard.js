@@ -18,6 +18,8 @@
  *   composés insécables avant le découpage en lignes du paragraphe (il se recoupait à la fin de l'intro).
  * v0.8.2 (27/11/2026) : attribut sizes de la photo du hero posé par le script (Webflow écrivait 479px → variante 500 px,
  *   photo floue) ; le relais attend la grande variante.
+ * v0.8.3 (28/11/2026) : de 480 à 767 px, le site affiche la mise en page tablette (piste C, choix de Kevin) : sizes et masque
+ *   de l'intro suivent (mobile jusqu'à 479 px seulement).
  * Dépendance : GSAP (Designer > Settings > GSAP). SplitText facultatif (paragraphe ligne par ligne). Pas de CustomEase :
  * les courbes sur mesure sont calculées ici.
  */
@@ -36,7 +38,7 @@
      photo est floue (étirée sur ~1 930 px, puis zoomée ×1,7 par l'intro). L'attribut est réservé dans le Designer : on le
      pose ici, dès que l'image entre dans la page, intro jouée ou non. Largeurs réelles de hero__image (Figma) : mobile
      ~410vw, tablette ~265vw, bureau ~134vw (150vw pour garder le zoom de l'intro net). */
-  var HERO_SEL = '[data-hero-img]', HERO_SIZES = '(max-width: 767px) 410vw, (max-width: 991px) 265vw, 150vw';
+  var HERO_SEL = '[data-hero-img]', HERO_SIZES = '(max-width: 479px) 410vw, (max-width: 991px) 265vw, 150vw';
   function fixHeroSizes(img) { if (img && img.getAttribute('sizes') !== HERO_SIZES) img.setAttribute('sizes', HERO_SIZES); }
   (function () {
     var img = document.querySelector(HERO_SEL); if (img) return fixHeroSizes(img);
@@ -194,7 +196,7 @@
       var cx = W / 2 - hr.left, cy = H / 2 - hr.top;           // centre de l'écran, dans le repère du hero
       // taille du masque « écran de cinéma » : 420 × 210 à 1440 (bureau), 29 % de l'écran en tablette, 50 % en mobile
       // (le logo et le cadre réunis doivent tenir dans l'écran) ; surchargeable par --intro-frame-w / --intro-frame-h
-      var FW = W < 768 ? W * .5 : (W < 992 ? W * .2914 : 420 * u);
+      var FW = W < 480 ? W * .5 : (W < 992 ? W * .2914 : 420 * u);
       var fw = cssLen(hero, '--intro-frame-w', FW), fh = cssLen(hero, '--intro-frame-h', FW / 2), R = 3 * u;
       var Z = num(himg, 'data-intro-zoom', 1.7);
 
